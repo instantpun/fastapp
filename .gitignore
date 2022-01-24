@@ -1,2 +1,4 @@
 # ignore loading ssh keys
 .ssh-test/
+.terraform*
+.terraform/*

@@ -1,4 +1,4 @@
-resource "aws_cloudwatch_log_group" "smyapp_ecs_container_cloudwatch_loggroup" {
+resource "aws_cloudwatch_log_group" "myapp_ecs_container_cloudwatch_loggroup" {
   name = "${var.app_prefix}-cloudwatch-log-group"
 
   tags = {

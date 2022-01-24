@@ -33,3 +33,11 @@ resource "aws_iam_role_policy_attachment" "myapp-ecs-role-policy-attachment" {
     role       = "${aws_iam_role.myapp_ecs_role.name}"
     // policy_arn = "arn:aws:iam::aws:policy/service-role/#TODO#"
 }
+
+resource "aws_iam_role" "myapp_ecs_task_role" {
+  // #TODO
+}
+
+resource "aws_iam_role" "myapp_ecs_execution_role" {
+  // #TODO
+}
