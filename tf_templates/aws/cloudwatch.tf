@@ -1,10 +1,12 @@
 resource "aws_cloudwatch_log_group" "myapp_ecs_container_cloudwatch_loggroup" {
   name = "${var.app_prefix}-cloudwatch-log-group"
 
-  tags = {
-    Name        = "${var.app_prefix}-cloudwatch-log-group"
-    Environment = "${var.stage_name}"
-  }
+  tags = merge(
+    var.common_tags,
+    {
+      Name        = "${var.app_prefix}-cloudwatch-log-group"
+    }
+  )
 }
 
 resource "aws_cloudwatch_log_stream" "myapp_ecs_container_cloudwatch_logstream" {
