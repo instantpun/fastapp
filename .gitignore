@@ -159,7 +159,8 @@ cython_debug/
 # .tfstate files
 *.tfstate
 *.tfstate.*
-*.terraform.*
+*.terraform*
+*.tfplan
 
 # Crash log files
 crash.log
