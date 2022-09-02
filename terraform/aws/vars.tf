@@ -7,9 +7,9 @@ variable "app_prefix" {
   default = "my-ecs-app"
 }
 
-# variable "stage_name" {
-#   default = "dev"
-#   type    = string
+# variable "container_port" {
+#   default = 8443
+#   type    = integer
 # }
 
 variable "common_tags" {

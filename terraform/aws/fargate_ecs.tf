@@ -7,7 +7,7 @@ locals {
 ##################################################
 # AWS Fargate
 ##################################################
-resource "aws_ecs_cluster" "demo-fleet" {
+resource "aws_ecs_cluster" "demo_fleet" {
   name = "${var.app_prefix}-ECSCluster"
 
   tags = var.common_tags

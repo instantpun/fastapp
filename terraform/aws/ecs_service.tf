@@ -1,5 +1,5 @@
 resource "aws_ecs_task_definition" "demo_fastapi" {
-  family                   = "${var.app_prefix}-ECSTaskDefinition"
+  family                   = "${var.app_prefix}"
   task_role_arn            = "${aws_iam_role.ecs_task_role.arn}"
   execution_role_arn       = "${aws_iam_role.ecs_task_execution_role.arn}"
   
@@ -49,10 +49,10 @@ EOF
 
 }
 
-# resource "aws_ecs_service" "main" {
-#  name                               = "${var.name}-service-${var.environment}"
-#  cluster                            = aws_ecs_cluster.main.id
-#  task_definition                    = aws_ecs_task_definition.main.arn
+# resource "aws_ecs_service" "demo_fastapi" {
+#  name                               = "${var.app_prefix}"
+#  cluster                            = aws_ecs_cluster.demo_fleet.id
+#  task_definition                    = aws_ecs_task_definition.demo_fastapi.arn
 #  desired_count                      = 2
 #  deployment_minimum_healthy_percent = 50
 #  deployment_maximum_percent         = 200
