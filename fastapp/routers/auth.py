@@ -1,44 +1,25 @@
+# Std Libs
 import os
-import logging
-import logging.config
-import pythonjsonlogger
-
-from uuid import uuid4
-import time
+# import logging
+# import logging.config
 
 from typing import Union, List
 
-from fastapi import FastAPI, Request, Response, UploadFile, Depends, FastAPI, HTTPException, status
+# 3rd Party Packages
+import pythonjsonlogger
+
+
+from fastapi import APIRouter, Request, Response, UploadFile, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from fastapi.responses import HTMLResponse
-from fastapi.middleware.httpsredirect import HTTPSRedirectMiddleware
-
-from starlette_prometheus import metrics, PrometheusMiddleware
-# from starlette.staticfiles import StaticFiles
 
 from pydantic import BaseModel
 
-import pythonjsonlogger
-
-# =================
-# Log Setup
-# =================
-# If this app runs inside a container, shell variables are useful 
-# for passing through configuration paramters
-if os.environ.get('LOG_CONF_PATH'):
-    logger_conf_path = os.environ.get('LOG_CONF_PATH')
-else:
-    logger_conf_path = './logging.conf'
-
-if os.environ.get('LOG_LEVEL'):
-    log_level = os.environ.get('LOG_LEVEL').upper()
-else:
-    log_level = 'INFO'
-
-print(logger_conf_path)
-logging.config.fileConfig(logger_conf_path, disable_existing_loggers=False)
-logger = logging.getLogger(__name__)
-logger.setLevel(log_level)
+router = APIRouter(
+    prefix="/auth",
+    tags=["auth"],
+    responses={404: {"description": "Not found"}},
+)
 
 # ====================
 # Data Models
@@ -69,13 +50,7 @@ fake_users_db = {
     },
 }
 
-# =================
-# Setup API Router
-# =================
-app = FastAPI()
 
-# force redirect of HTTP requests to HTTPS receiver
-app.add_middleware(HTTPSRedirectMiddleware)
 
 
 # @app.on_event("startup")
@@ -129,7 +104,7 @@ async def get_current_active_user(current_user: User = Depends(get_current_user)
 # Path Operations
 # ================
 
-@app.post("/token")
+@router.post("/token")
 async def login(form_data: OAuth2PasswordRequestForm = Depends()):
     user_dict = fake_users_db.get(form_data.username)
     if not user_dict:
@@ -141,7 +116,7 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()):
 
     return {"access_token": user.username, "token_type": "bearer"}
 
-@app.get("/users/me")
+@router.get("/users/me")
 async def read_users_me(current_user: User = Depends(get_current_active_user)) -> User:
     """_summary_
 
@@ -162,7 +137,7 @@ async def read_users_me(current_user: User = Depends(get_current_active_user)) -
 # Depends() declares oauth2_scheme (class: OAuth2PasswordBearer) as a dependency,
 # so FastApi will automatically add a new "security scheme" to the OpenAPI schema 
 
-@app.get("/oauth2-sample/")
+@router.get("/oauth2-sample/")
 async def read_token(token: str = Depends(oauth2_scheme)) -> dict:
     """
     read_token() will go and look in the request for that Authorization header, 
@@ -208,45 +183,6 @@ async def read_token(token: str = Depends(oauth2_scheme)) -> dict:
 # async def create_upload_files(files: List[UploadFile]):
 #     return {"filenames": [file.filename for file in files]}
 
-# ================
-# Monitoring 
-# ================
-# PrometheusMiddleware is a utility which wraps http request handlers and exports basic metrics
-# add_route() configures the ASGI router to expose the metric stream at a valid URI path
-app.add_middleware(PrometheusMiddleware)
-app.add_route("/metrics", metrics)
-
-# =========================
-# Custom Logging Middleware
-# =========================
-@app.middleware("http") 
-async def log_requests(request: Request, call_next) -> Response:
-    """  Wraps the call_next() request handler
-    Args:
-        request (starlette.Request): [description]
-        call_next (starlette.middleware.BaseHTTPMiddleware.call_next): [description]
-    Returns:
-        response (starlette.Response): [description]
-    """    
-    request_id = str(uuid4()) # generate random uuid for log tracing
-    extra_fields = {
-        "request_id":request_id, 
-        "path": request.url.path
-        }
-    logger.info("start request", extra=extra_fields)
-    start_time = time.time()
-    
-    response = await call_next(request)
-    
-    process_time = (time.time() - start_time) * 1000
-    formatted_process_time = '{:.2f}'.format(process_time) # millisecond with float precision of 2 digits
-    extra_fields.update({ 
-        "process_time_ms": formatted_process_time, 
-        "status_code": response.status_code
-        })
-    logger.info("end request", extra=extra_fields)
-    return response
-
 # ===================================
 # Custom Router Dependencies
 # ===================================
@@ -278,15 +214,3 @@ async def log_requests(request: Request, call_next) -> Response:
 # then '$HOST:$PORT/static/sample.html' becomes the URI path
 # app.mount("/static", StaticFiles(directory="static"), name="static", html=True)
 
-# =====================================
-# Serving Static HTML - The Manual Way
-# =====================================
-# import pathlib
-# current_dir = pathlib.Path(__file__).parent.resolve()
-# @app.get("/")
-# def read_root():
-#     with open(f"{current_dir}/hello.html", "r") as f:
-#         response = f.read()
-#     if isinstance(response, bytes):
-#         reponse = response.decode("utf-8")
-#     return response

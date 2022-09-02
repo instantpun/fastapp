@@ -10,3 +10,5 @@ black>=19.3b0
 starlette_prometheus
 python-json-logger
 python-multipart
+python-jose[cryptography]
+passlib[bcrypt]
