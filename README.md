@@ -37,8 +37,10 @@ openssl req \
 ## Metrics
 This website uses Prometheus to expose metrics. The `starlette-prometheus` module provides a wrapper for HTTP handlers managed by Starlette and exposes common web metrics.
 
-```app.add_middleware(PrometheusMiddleware)
-app.add_route("/metrics", metrics)```
+```
+app.add_middleware(PrometheusMiddleware)
+app.add_route("/metrics", metrics)
+```
 
 https://github.com/perdy/starlette-prometheus/blob/master/starlette_prometheus/middleware.py
 
