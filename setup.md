@@ -15,12 +15,12 @@ Enable package-based imports:
 
 
 Start basic server with:
-`uvicorn api.website:app --host 0.0.0.0 --port 8000 --reload --log-config logging.conf`
+`uvicorn main:app --host 0.0.0.0 --port 8080 --reload --log-config logging.conf`
 
 For HTTP/2 Support use:
-`hypercorn --bind 0.0.0.0:8000 api.website:app --log-config logging.conf`
+`hypercorn --bind 0.0.0.0:8000 main:app --log-config logging.conf`
 
-`hypercorn --certfile fastapi-app.crt --keyfile fastapi-app.key --bind localhost:8443 --insecure-bind localhost:8080 fastapp.__main__:APP --access-logformat ''`
+`hypercorn --certfile fastapi-app.crt --keyfile fastapi-app.key --bind localhost:8443 --insecure-bind localhost:8080 main:app --access-logformat ''`
 
 Create Self-signed Cert & Private Key
 
