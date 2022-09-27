@@ -43,7 +43,7 @@ logger.setLevel(log_level)
 app = FastAPI()
 
 # force redirect of HTTP requests to HTTPS receiver
-# app.add_middleware(HTTPSRedirectMiddleware)
+app.add_middleware(HTTPSRedirectMiddleware)
 
 # ================
 # Monitoring 
@@ -87,8 +87,9 @@ async def log_requests(request: Request, call_next) -> Response:
 # =========================
 # Add Routes
 # =========================
-from fastapp.routers import auth
+from fastapp.routers import auth, static 
 app.include_router(auth.router)
+app.include_router(static.router)
 # app.include_router(
 #     admin.router,
 #     prefix="/admin",
