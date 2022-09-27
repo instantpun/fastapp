@@ -10,7 +10,7 @@ import pythonjsonlogger
 
 
 from fastapi import APIRouter, Request, Response, UploadFile, Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm, OAuth2PasswordRequestFormStrict
 from fastapi.responses import HTMLResponse
 
 from pydantic import BaseModel
@@ -105,12 +105,16 @@ async def get_current_active_user(current_user: User = Depends(get_current_user)
 # ================
 
 @router.post("/token")
-async def login(form_data: OAuth2PasswordRequestForm = Depends()):
+async def login(form_data: OAuth2PasswordRequestFormStrict = Depends()):
+    
+    # fetch user record from fake DB by username
     user_dict = fake_users_db.get(form_data.username)
     if not user_dict:
         raise HTTPException(status_code=400, detail="Incorrect username or password")
     user = UserInDB(**user_dict)
     hashed_password = fake_hash_password(form_data.password)
+    
+    # received hash should match hash in fake DB
     if not hashed_password == user.hashed_password:
         raise HTTPException(status_code=400, detail="Incorrect username or password")
 
@@ -160,7 +164,7 @@ async def read_token(token: str = Depends(oauth2_scheme)) -> dict:
 # ================
 # Path Operations
 # ================
-# @app.get("/")
+# @app.get("/login")
 # async def main():
 #     content = """
 # <body>
@@ -171,17 +175,6 @@ async def read_token(token: str = Depends(oauth2_scheme)) -> dict:
 # </body>
 #     """
 #     return HTMLResponse(content=content)
-
-# @app.post("/upload/")
-# async def create_upload_file(file: Union[UploadFile, None] = None) -> dict:
-#     if not file:
-#         # do what?
-#     else:
-#         # do else?
-
-# @app.post("/upload/")
-# async def create_upload_files(files: List[UploadFile]):
-#     return {"filenames": [file.filename for file in files]}
 
 # ===================================
 # Custom Router Dependencies
@@ -202,15 +195,4 @@ async def read_token(token: str = Depends(oauth2_scheme)) -> dict:
 # ensures that wrapperFunc will be called for every endpoint added to it 
 # (functioning very similarly to a middleware, given that all endpoints pass 
 # through api_router).
-
-
-
-# ===================================
-# Serving Static HTML - The Lazy Way
-# ===================================
-# mounts a completely indepedent application at the URI path /static
-# subpaths of /static are mapped to files in the "static" directory
-# so if '$APP_DIR/static/sample.html' is a valid filepath on the webhost, 
-# then '$HOST:$PORT/static/sample.html' becomes the URI path
-# app.mount("/static", StaticFiles(directory="static"), name="static", html=True)
 
